@@ -225,7 +225,7 @@ def get_dataframe(inputfiles, whichstats, channels=[1,2,3,4], rmscut=1.5, residu
             
             #grab the data from each channel
             time = np.array([])
-            voltage = [np.array([])]*4
+            voltage = [np.array([])]*4 
             lines = current_file[j].split('\n')
             
             if verbose and (j >= vieweventstart) and (j <= viewevents+vieweventstart): #show the waveform fit line
@@ -240,8 +240,8 @@ def get_dataframe(inputfiles, whichstats, channels=[1,2,3,4], rmscut=1.5, residu
                 values = line.split()
                 time = np.append(time, float(values[2]))
 
-                for channel in channels:
-                    voltage[channel-1] = np.append(voltage[channel-1], float(values[channel+2]))
+                for channel in channels:#                                                                  VVVV
+                    voltage[channel-1] = np.append(voltage[channel-1], float(values[channel+2]) if channel != 5 else -float(values[channel+2]))
                 
             
             #calculate stats for each channel
@@ -293,7 +293,11 @@ def get_dataframe(inputfiles, whichstats, channels=[1,2,3,4], rmscut=1.5, residu
                             voltage[channel-1][i] = smoothvoltage[i]
                             
                     if do_fit: 
-                        popt, pcov = curve_fit(waveform, time, voltage[channel-1],p0=p0[channel-1],maxfev = 100000)#,bounds ([-10,10,1,60,-1000,0],[10,100,30,140,0,1000]))
+                        try:
+                            popt, pcov = curve_fit(waveform, time, voltage[channel-1],p0=p0[channel-1],maxfev = 100000)#,bounds ([-10,10,1,60,-1000,0],[10,100,30,140,0,1000]))
+                            
+                        except RuntimeError:
+                            popt = [0,60,10,65,-1000,0]
                     
                     #calculate chi^2
                     if do_chi2:
@@ -334,10 +338,11 @@ def get_dataframe(inputfiles, whichstats, channels=[1,2,3,4], rmscut=1.5, residu
                     if totalrms > rmscut and do_fit: 
                         fits = waveform(ts,*popt)
                     else:
-                        fits = np.mean(voltage[channel-1])*501
+                        fits = [np.mean(voltage[channel-1])]*501
                     
                     #plot the data, smooth if smoothing, fit if fitting
                     ax[channel-1].plot(time,voltage[channel-1],label="raw")
+                    
                     if do_smooth: ax[channel-1].plot(time,smoothvoltage,label="smooth_5", color='orange')
                     if do_fit: ax[channel-1].plot(ts,fits,label="fit",color="black")
                     
