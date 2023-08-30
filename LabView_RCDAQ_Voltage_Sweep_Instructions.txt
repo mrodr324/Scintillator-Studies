@@ -1,0 +1,15 @@
+The file RCDAQ Voltage Sweep.vi is required to be used with LabView.
+
+After it has opened in Lab View. Ensure that the Keithly 2450 is connected to the computer running labview with GPIB Cable.
+If it is connected properly where it says VISA Resource Name should be a GPIB option that you select.
+Where it says Sweep Points, Start and Stop, that is where you will input the starting voltage and ending voltage. Number of points is how many steps it will take between the starting voltage and ending voltage. In DRS4 time is how many seconds you want to record data in each step. In Compliance Level input 0.001. This is the amp limit.
+
+In the linux computer open terminal and in the home directory do nano voltagesweep.sh. Your settings should match that of the settings in rcdaqinit.sh
+
+In LabView where is says linux command enter 
+
+bash voltagesweep.sh [time]
+
+replace [time] with what ever time you entered for DRS4 Time
+
+click "Window" tab in top, and select show block diagram. Where it says arratia@10.13.3.255 replace it with arratia@10.13.3.46
